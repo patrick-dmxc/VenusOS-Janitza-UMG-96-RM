@@ -33,6 +33,7 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
         self.info_regs = [
             Reg_s16(756, '/HardwareVersion'),
             Reg_s16(750, '/FirmwareVersion'),
+            Reg_u32b(754, '/Serial'),
         ]
 
     def phase_regs(self, n):
@@ -76,7 +77,7 @@ models = {
     },
 }
 
-probe.add_handler(probe.ModelRegister(756, models,
+probe.add_handler(probe.ModelRegister(Reg_s16(756), models,
                                       methods=['rtu','tcp'],
                                       rates=[115200],
                                       units=[1]))
