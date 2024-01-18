@@ -1,6 +1,12 @@
 # VenusOS module for support of Janitza UMG 96 RM-E Analyzer - and maybe others
 # 
 # Community contribution by Patrick Grote
+# Version 0.2 - 2024-01-18
+# - Switched Identifyer to ProductNumber
+# - Added other Models
+# - Fix Hardware-Version
+# - Increase resolution
+#
 # Version 0.1 - 2023-05-22
 
 import logging
@@ -24,26 +30,31 @@ class Reg_f32b(Reg_num):
 
 class JANITZA_UMG_96RM(device.EnergyMeter):
     productid = 0xb017
-    productname = 'Janitza UMG 96 RM-E'
-    min_timeout = 1
+    productname = 'Janitza UMG 96 RM'
+    min_timeout = 0.5
+    age_limit_fast = 0
+    refresh_time = 200
+    nr_phases = 3
+
 
     def __init__(self, *args):
         super(JANITZA_UMG_96RM, self).__init__(*args)
         log.info('Janitza Probing') 
         self.info_regs = [
-            Reg_s16(756, '/HardwareVersion'),
-            Reg_s16(750, '/FirmwareVersion'),
+            Reg_u16(751, '/HardwareVersion'),
+            Reg_u16(750, '/FirmwareVersion'),
+            Reg_f32b(34, '/Ac/FrequencyNominal', 1, '%.0f Hz'),
             Reg_u32b(754, '/Serial'),
         ]
 
     def phase_regs(self, n):
         s = 0x0002 * (n - 1)
         return [
-            Reg_f32b(19000 + s, '/Ac/L%d/Voltage' % n,        1, '%.1f V'),
-            Reg_f32b(19012 + s, '/Ac/L%d/Current' % n,        1, '%.1f A'),
-            Reg_f32b(19020 + s, '/Ac/L%d/Power' % n,          1, '%.0f W'),
-            Reg_f32b(19062 + s, '/Ac/L%d/Energy/Forward' % n, 1000, '%.2f kWh'),
-            Reg_f32b(19068 + s, '/Ac/L%d/Energy/Reverse' % n, 1000, '%.2f kWh'),
+            Reg_f32b(19000 + s, '/Ac/L%d/Voltage' % n,        1, '%.3f V'),
+            Reg_f32b(19012 + s, '/Ac/L%d/Current' % n,        1, '%.3f A'),
+            Reg_f32b(19020 + s, '/Ac/L%d/Power' % n,          1, '%.3f W'),
+            Reg_f32b(19062 + s, '/Ac/L%d/Energy/Forward' % n, 1000, '%.3f kWh'),
+            Reg_f32b(19068 + s, '/Ac/L%d/Energy/Reverse' % n, 1000, '%.3f kWh'),
         ]
 
 
@@ -53,11 +64,11 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
         phases = 3
 
         regs = [
-            Reg_f32b(19026, '/Ac/Power',          1, '%.0f W'),
-            Reg_f32b(19018, '/Ac/Current',        1, '%.1f A'),
-            Reg_f32b(19050, '/Ac/Frequency',      1, '%.1f Hz'),
-            Reg_f32b(19068, '/Ac/Energy/Forward', 1000, '%.2f kWh'),
-            Reg_f32b(19076, '/Ac/Energy/Reverse', 1000, '%.2f kWh'),
+            Reg_f32b(19026, '/Ac/Power',          1, '%.3f W'),
+            Reg_f32b(19018, '/Ac/Current',        1, '%.3f A'),
+            Reg_f32b(19050, '/Ac/Frequency',      1, '%.3f Hz'),
+            Reg_f32b(19068, '/Ac/Energy/Forward', 1000, '%.3f kWh'),
+            Reg_f32b(19076, '/Ac/Energy/Reverse', 1000, '%.3f kWh'),
         ]
 
 
@@ -69,15 +80,74 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
     def get_ident(self):
         return 'cg_%s' % self.info['/Serial']
 
-
 models = {
-    30518: {
-        'model':    'UMG96RM-E-RCM',
+    5222036: {
+        'model':    'UMG 96 RM-E-RCM',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222061: {
+        'model':    'UMG 96 RM',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222062: {
+        'model':    'UMG 96 RM-E',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222063: {
+        'model':    'UMG 96 RM-E',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222064: {
+        'model':    'UMG 96 RM-P',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222065: {
+        'model':    'UMG 96 RM-P',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222066: {
+        'model':    'UMG 96 RM-CBM',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222067: {
+        'model':    'UMG 96 RM-CBM',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222068: {
+        'model':    '???',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222069: {
+        'model':    'UMG 96 RM-M',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222070: {
+        'model':    'UMG 96 RM',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222071: {
+        'model':    '???',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222072: {
+        'model':    '???',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222073: {
+        'model':    'UMG 96 RM-M',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222090: {
+        'model':    'UMG 96 RM-PN',
+        'handler':  JANITZA_UMG_96RM,
+    },
+    5222091: {
+        'model':    'UMG 96 RM-PN',
         'handler':  JANITZA_UMG_96RM,
     },
 }
 
-probe.add_handler(probe.ModelRegister(Reg_s16(756), models,
+probe.add_handler(probe.ModelRegister(Reg_s32b(769), models,
                                       methods=['rtu','tcp'],
                                       rates=[115200],
                                       units=[1]))
