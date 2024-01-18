@@ -12,15 +12,10 @@
 import logging
 import device
 import probe
-from register import *
+from register import Reg, Reg_s16, Reg_u16, Reg_s32b, Reg_u32b, Reg_num
 
 log = logging.getLogger()
-
-class Reg_u64b(Reg_num):
-    def __init__(self, base, *args, **kwargs):
-        super(Reg_u64b, self).__init__(base, 4, *args, **kwargs)
-        self.coding = ('>Q', '>4H')
-        self.scale = float(self.scale)
+lOffset = 32768
         
 class Reg_f32b(Reg_num):
     def __init__(self, base, *args, **kwargs):
@@ -39,43 +34,58 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
 
     def __init__(self, *args):
         super(JANITZA_UMG_96RM, self).__init__(*args)
-        log.info('Janitza Probing') 
-        self.info_regs = [
-            Reg_u16(751, '/HardwareVersion'),
-            Reg_u16(750, '/FirmwareVersion'),
-            Reg_f32b(34, '/Ac/FrequencyNominal', 1, '%.0f Hz'),
-            Reg_u32b(754, '/Serial'),
-        ]
+        log.info('Janitza Probing')
+        try:
+            self.info_regs = [
+                Reg_u16(751, '/HardwareVersion'),
+                Reg_u16(750, '/FirmwareVersion'),
+                Reg_u32b(754, '/Serial'),
+            ]
+        except:
+            log.info('Exception while Janitza Probing')
+        log.info('Janitza Probing done')
 
     def phase_regs(self, n):
+        log.info('Janitza register Phase %d' % n)
         s = 0x0002 * (n - 1)
-        return [
-            Reg_f32b(19000 + s, '/Ac/L%d/Voltage' % n,        1, '%.3f V'),
-            Reg_f32b(19012 + s, '/Ac/L%d/Current' % n,        1, '%.3f A'),
-            Reg_f32b(19020 + s, '/Ac/L%d/Power' % n,          1, '%.3f W'),
-            Reg_f32b(19062 + s, '/Ac/L%d/Energy/Forward' % n, 1000, '%.3f kWh'),
-            Reg_f32b(19068 + s, '/Ac/L%d/Energy/Reverse' % n, 1000, '%.3f kWh'),
-        ]
+
+        try:
+            pRegs = [
+                Reg_f32b(19000 + s, '/Ac/L%d/Voltage' % n,        1, '%.3f V'),
+                Reg_f32b(19012 + s, '/Ac/L%d/Current' % n,        1, '%.3f A'),
+                Reg_f32b(19020 + s, '/Ac/L%d/Power' % n,          1, '%.3f W'),
+                Reg_f32b(19062 + s, '/Ac/L%d/Energy/Forward' % n, 1000, '%.3f kWh'),
+                Reg_f32b(19068 + s, '/Ac/L%d/Energy/Reverse' % n, 1000, '%.3f kWh'),
+            ]
+        except:
+            log.info('Janitza register Phase %d exception while Register f32'% n)
+        log.info('Janitza register Phase %d done'% n)
+        return pRegs
 
 
     def device_init(self):
+        log.info('Janitza device init')
         self.read_info()
 
         phases = 3
-
-        regs = [
-            Reg_f32b(19026, '/Ac/Power',          1, '%.3f W'),
-            Reg_f32b(19018, '/Ac/Current',        1, '%.3f A'),
-            Reg_f32b(19050, '/Ac/Frequency',      1, '%.3f Hz'),
-            Reg_f32b(19068, '/Ac/Energy/Forward', 1000, '%.3f kWh'),
-            Reg_f32b(19076, '/Ac/Energy/Reverse', 1000, '%.3f kWh'),
-        ]
+        try:
+            regs = [
+                Reg_f32b(19026, '/Ac/Power',          1, '%.3f W'),
+                Reg_f32b(19018, '/Ac/Current',        1, '%.3f A'),
+                Reg_f32b(19050, '/Ac/Frequency',      1, '%.3f Hz'),
+                Reg_f32b(19068, '/Ac/Energy/Forward', 1000, '%.3f kWh'),
+                Reg_f32b(19076, '/Ac/Energy/Reverse', 1000, '%.3f kWh'),
+            ]
+        except:
+            log.info('Janitza device exception while Register f32')
 
 
         for n in range(1, phases + 1):
             regs += self.phase_regs(n)
 
+        log.info('Janitza set Registers')
         self.data_regs = regs
+        log.info('Janitza device init done')
 
     def get_ident(self):
         return 'cg_%s' % self.info['/Serial']
