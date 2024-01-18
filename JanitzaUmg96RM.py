@@ -15,13 +15,19 @@ import probe
 from register import Reg, Reg_s16, Reg_u16, Reg_s32b, Reg_u32b, Reg_num
 
 log = logging.getLogger()
-lOffset = 32768
         
-class Reg_f32b(Reg_num):
-    def __init__(self, base, *args, **kwargs):
-        super(Reg_f32b, self).__init__(base, 2, *args, **kwargs)
-        self.coding = ('>f', '>2H')
-        self.scale = float(self.scale)
+#class Reg_f32b(Reg_num): # Works in 3.10
+#    def __init__(self, base, *args, **kwargs):
+#        super(Reg_f32b, self).__init__(base, 2, *args, **kwargs)
+#        self.coding = ('>f', '>2H')
+#        self.scale = float(self.scale)
+
+### Untested 3.11 & 3.12
+
+class Reg_f32b(Reg_num): # Works in 3.13
+    coding = ('>f', '>2H')
+    count = 2
+    rtype = float
 
 class JANITZA_UMG_96RM(device.EnergyMeter):
     productid = 0xb017
@@ -49,6 +55,7 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
         log.info('Janitza register Phase %d' % n)
         s = 0x0002 * (n - 1)
 
+        pRegs = None
         try:
             pRegs = [
                 Reg_f32b(19000 + s, '/Ac/L%d/Voltage' % n,        1, '%.3f V'),
@@ -68,8 +75,9 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
         self.read_info()
 
         phases = 3
+        gRegs = None
         try:
-            regs = [
+            gRegs = [
                 Reg_f32b(19026, '/Ac/Power',          1, '%.3f W'),
                 Reg_f32b(19018, '/Ac/Current',        1, '%.3f A'),
                 Reg_f32b(19050, '/Ac/Frequency',      1, '%.3f Hz'),
@@ -81,10 +89,10 @@ class JANITZA_UMG_96RM(device.EnergyMeter):
 
 
         for n in range(1, phases + 1):
-            regs += self.phase_regs(n)
+            gRegs += self.phase_regs(n)
 
         log.info('Janitza set Registers')
-        self.data_regs = regs
+        self.data_regs = gRegs
         log.info('Janitza device init done')
 
     def get_ident(self):
