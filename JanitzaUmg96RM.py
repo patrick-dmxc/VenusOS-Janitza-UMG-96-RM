@@ -30,7 +30,7 @@ class Reg_f32b(Reg_num): # Works in 3.13
     rtype = float
 
 class JANITZA_UMG_96RM(device.EnergyMeter):
-    productid = 0xb017
+    productid = 0xFFFF
     productname = 'Janitza UMG 96 RM'
     min_timeout = 0.5
     age_limit_fast = 0
