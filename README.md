@@ -1,6 +1,6 @@
 # VenusOS-Janitza-UMG-96-RM
 Service to use Janitza UMG 96 RM Meters with Venus OS
-![Picture](https://github.com/patrick-dmxc/VenusOS-Janitza-UMG-96-RM/blob/main/image.jpg?raw=true)
+![Picture](https://github.com/patrick-dmxc/VenusOS-Janitza-UMG-96-RM/blob/main/Picture%201.png?raw=true)
 
 ## Installation
 1. Copy JanitzaUmg96RM.py to the directory /opt/victronenergy/dbus-modbus-client/
