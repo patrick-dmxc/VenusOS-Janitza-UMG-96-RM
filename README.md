@@ -1,4 +1,4 @@
-# VenusOS-Janitza-UMG-96-RM
+# VenusOS-Janitza
 Service to use Janitza Meters with Venus OS
 ![Picture](https://github.com/patrick-dmxc/VenusOS-Janitza-UMG-96-RM/blob/main/Picture%201.png?raw=true)
 
